@@ -15,6 +15,8 @@ class BayesianNetwork:
             self.edges = self.__buildEdges(self.nodes)
         else:
             self.edges = []
+            
+        self.__node_dict = self.__buildNodeDict(self.nodes)
         
     def __buildEdges(self, nodes):
         edge_list = []
@@ -154,10 +156,21 @@ class BayesianNetwork:
             node_list.append(node)
 
         self.nodes = node_list
-        self.edges = self.__buildEdges(self.nodes)        
+        self.edges = self.__buildEdges(self.nodes)
+        self.__node_dict = self.__buildNodeDict(self.nodes)
+        
+        
             
         
+    def getNodeByName(self, name):
+        return self.__node_dict[name]
         
+    
+    def __buildNodeDict(self, nodes):
+        node_dict = {}
+        for node in nodes:
+            node_dict[node.name] = node
+        return node_dict
 
     
                 

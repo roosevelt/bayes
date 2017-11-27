@@ -1,6 +1,7 @@
 # A conditional probability distribution table to be associated to a node
 from decimal import Decimal
 import copy
+from Table import Table
 
 class CPD():
     # variables is a list of variables of type Variable
@@ -10,46 +11,9 @@ class CPD():
             condition_variables.sort(key = lambda x: x.name)
         self.variable = variable
         self.condition_variables = condition_variables
-        self.table = self.__buildTable(self.variable, self.condition_variables) 
+        self.table = Table([self.variable]+self.condition_variables) 
         
-    def __buildTable(self, variable, condition_variables):
-        table = {}
-        for combination in self.__getVariableValuesCombinations([variable]+condition_variables):
-            f_comb = frozenset(combination)
-            table[f_comb] = Decimal('0.0')
-        return table
-    
-    def __getVariableValuesCombinations(self, variables):
-        # Generate all possible combinations of data
-        variable_values = {}
-        variable_card_prod = {}
-        count = 1
-        
-        for variable in variables:
-            variable_values[variable.name] = variable.values
-            variable_card_prod[variable.name] = count
-            count = count * len(variable.values)
-        
-        #Generate all variables combinations probabilities
-        var_counters = {}
-        var_counters = copy.copy(variable_card_prod)
-        var_actual_values = [0] * len(variables)
-        k = 0
-        while (k < count):
-            example = []
-            for i in range(len(variables)):
-                var_name = variables[i].name
-                value = variable_values[var_name][var_actual_values[i]]
-                var_counters[var_name] = var_counters[var_name] - 1
-                if var_counters[var_name] == 0:
-                    var_counters[var_name] = variable_card_prod[var_name]
-                    if (var_actual_values[i] != ((len(variable_values[var_name])-1))):
-                        var_actual_values[i] = var_actual_values[i] + 1
-                    else:
-                        var_actual_values[i] = 0
-                example.append((var_name,value))
-            yield example
-            k+=1;
+        self.__variable_dict = self.__buildVariableDict(self.variable, self.condition_variables)
         
     def __str__(self):
         # Prints this CPD to the stdout
@@ -64,33 +28,27 @@ class CPD():
             result +=  "Parents: " + ", ".join(condition_arr) + "\n"
         else:
             result += "Parents: None (no parents)\n"
-        result += "Lines: " +  str(len(self.table)) +" entries\n\n"
-    
-        for example in self.table:
-           str_example = ""
-           feature_val_lst = []
-           main_feature = ""
-           for feature_val in example:
-               if(feature_val[0]!=self.variable.name):
-                   feature_val_lst.append(feature_val[0] + "(" + str(feature_val[1]) + ")")
-                   feature_val_lst.sort()
-               else:
-                   main_feature = feature_val[0] + "(" + str(feature_val[1]) + ")"
-           feature_val_lst = [main_feature] + feature_val_lst
+        result += "Lines: " +  str(len(self.table.data)) +" entries\n\n"
 
-           for feat_str in feature_val_lst:
-               str_example += '{0:30s} '.format(feat_str)
-           str_example += '{0:25s} '.format(str(self.table[example]))
-           result+=str_example+"\n"
+        self.table.setFirstVariableToPrint(self.variable)
+        result += self.table.__str__()
+        
         return result
     
     # Set the parameters in the CPD
     def setParameters(self, parameters):
         # parameters is a list of parameters in the order that it appears on the table
-        k=0
-        for combination in self.table:
-            self.table[combination]=Decimal(str(parameters[k]))
-            k+=1
+        self.table.setParameters(parameters)
         
     def getParameters(self):
-        return self.table
+        return self.table.getParameters()
+    
+    def getVariableByName(self, name):
+        return self.__variable_dict[name]
+        
+    def __buildVariableDict(self, variable, conditional_variable):
+        variables = [variable] + conditional_variable
+        variable_dict = {}
+        for variable in variables:
+            variable_dict[variable.name] = variable
+        return variable_dict

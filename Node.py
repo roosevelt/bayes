@@ -5,6 +5,7 @@ class Node():
         self.name = CPD.variable.name
         self.CPD = CPD
         self.parents = CPD.condition_variables
+        self.variable = self.CPD.variable
         
     def __str__(self):
         return self.CPD.__str__()
