@@ -1,6 +1,4 @@
 # A conditional probability distribution table to be associated to a node
-from decimal import Decimal
-import copy
 from Table import Table
 
 class CPD():

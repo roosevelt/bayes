@@ -85,3 +85,68 @@ class Table():
     
     def setFirstVariableToPrint(self, variable):
         self.__first_variable = variable
+
+    def summout(self, variable, variable_values):
+        # Summing out in a variable
+        # Get CPD        
+        table_data = self.data
+
+        # summing out
+        sum_table_data = {}
+        check = {} # only to check if the work was already done
+        for feature_set in table_data.keys():
+            search_features = list(feature_set)
+            vars = next(zip(*search_features))
+            if variable in vars:
+                index = vars.index(variable)
+                search_features.pop(index)
+                search_features = frozenset(search_features)
+            if search_features not in check:
+                if (len(search_features)!=len(feature_set)):
+                    summ = Decimal('0.0')
+                    for value in variable_values:
+                        union_set = search_features.union(frozenset([(variable, value)]))
+                        if union_set in table_data.keys():
+                            summ += table_data[union_set]
+                            check[search_features] = None
+
+                    sum_table_data[search_features] = summ
+                else:
+                    sum_table_data[feature_set] = table_data[feature_set]
+        
+        t = Table()
+        t.data = sum_table_data
+        return t
+
+
+    def joinFactors(self, table):       
+        # Joins two factors into a single one
+        CPDa = table.data
+        # get features in CPDa
+        CPDa_feature_list = next(zip(*list(CPDa)[0]))
+
+        CPDb = self.data
+        # get features in CPDb
+        CPDb_feature_list = next(zip(*list(CPDb)[0]))
+
+        len_a = len(CPDa_feature_list)
+        len_b = len(CPDb_feature_list)
+        
+        if len_a == 0:
+            return  CPDb
+
+        if len_b == 0:
+            return CPDa
+        
+        new_table_data = {}
+        if (len_a !=0) or (len_b!=0):
+            for feature_set_a in CPDa:
+                for feature_set_b in CPDb:
+                    new_feature_set = feature_set_a.union(feature_set_b)
+                    check_features = next(zip(*new_feature_set))
+                    if len(set(check_features)) == len(new_feature_set):
+                        new_table_data[new_feature_set] = CPDa[feature_set_a] * CPDb[feature_set_b]
+                   
+        new_table = Table()
+        new_table.data = new_table_data
+        return new_table

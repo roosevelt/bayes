@@ -151,7 +151,7 @@ class BayesianNetwork:
             for parent in parents[var_name]:
                 condition_variables.append(var_dict[parent])                                
             cpd_obj = CPD(variable, condition_variables)
-            cpd_obj.table = cpd[var_name]
+            cpd_obj.table.data = cpd[var_name]
             node = Node(cpd_obj)
             node_list.append(node)
 
@@ -159,8 +159,6 @@ class BayesianNetwork:
         self.edges = self.__buildEdges(self.nodes)
         self.__node_dict = self.__buildNodeDict(self.nodes)
         
-        
-            
         
     def getNodeByName(self, name):
         return self.__node_dict[name]
