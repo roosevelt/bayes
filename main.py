@@ -5,11 +5,12 @@ from BN import BayesianNetwork
 from Inference import Inference
  
 bn2 = BayesianNetwork()
-bn2.loadBIF('./data/alarm.bif')
+bn2.loadBIF('./data/asia.bif')
+print(bn2)
 
-inf = Inference()
+#inf = Inference()
 #print([(node.name, node.variable.values) for node in bn2.nodes])
-print(inf.variableElimination([('DISCONNECT', 'FALSE'),('ERRLOWOUTPUT', 'FALSE'), ('LVFAILURE', 'FALSE'), ('KINKEDTUBE', 'FALSE')],[], bn2))
+#print(inf.variableElimination([('DISCONNECT', 'FALSE'),('ERRLOWOUTPUT', 'FALSE'), ('LVFAILURE', 'FALSE'), ('KINKEDTUBE', 'FALSE')],[], bn2))
 
 
 
